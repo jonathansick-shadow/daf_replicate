@@ -1,0 +1,74 @@
+daf_replicate -- a package for tranfering data across sites.
+
+Currently, this package only supports manage_visits.sh for transfering
+ImSim data to NCSA using the 3rd party transfer tool, FDT
+(http://monalisa.cern.ch/FDT/). 
+
+GETTING THIS PACKAGE:
+
+A few binary distributions are available from
+http://dev.lsstcorp.org/trac/wiki/ImSimDataTransfer: 
+
+  o  daf_replicate-linux-i686.tar.gz -- for 32-bit Linux
+  o  daf_replicate-linux-x86_64.tar.gz -- for 64-bit Linux
+  o  daf_replicate-noarch.tar.gz -- generic (must obtain JRE separately)
+
+All of these include the FDT tool (as a jar file).  The first two
+include a Java Virtual Machine (JVM).  
+
+One can get the lastest source code from
+svn://dev.lsstcorp.org/DMS/daf/replicate/trunk.  A source distribution
+from SVN does include FDT nor the JVM.  
+
+REQUIREMENTS
+
+ o  FDT -- Fast Data Transfer tool (http://monalisa.cern.ch/FDT/)
+
+    If your distribution did not include a lib subdirectory, then you
+    need to download the FDT jar file from the FDT website
+
+  o Java Runtime Engine (JRE; http://www.java.com)
+
+    If your distribution did not include a jre subdirectory, then you
+    need to download the JRE 1.6 package from the Java website.  
+
+INSTALLATION
+
+Installation and setup (for the manage_visits.sh tool) is done as
+follows: 
+
+  1.  Unpack the distribution where you want it installed and change
+      into its root directory.  
+
+  2.  Edit the configuration file, manage_visits.cfg, in the conf
+      subdirectory.  Usually, only editing the parameter values in the
+      first section should be necessary.  Save your changes.
+
+  3.  Create your transfer directories as needed by running the
+      bin/setup_manage_visits.sh: 
+
+        % bash bin/setup_manage_visits.sh -f conf/manage_visits.cfg
+
+   4. Check your setup by running the test script
+      bin/test_manage_visits.sh: 
+
+        % bash bin/setup_manage_visits.sh -f conf/manage_visits.cfg
+
+You should be ready to run the tool.
+
+RUNNING
+
+To transfer some available ImSim data from you local machine to NCSA,
+run the bin/manage_visits.sh:
+
+  % bash bin/manage_visits.sh  -f conf/manage_visits.cfg
+
+This script will only transfer a limited number of available visits
+before it exits (2 by default); this limit can be changed in the
+configuration file by editing the MAX_VCNT parameter.  
+
+It is intended that this script can be executed on regular intervals
+from a cron job.  A application file lock prevents multiple
+simultaneous executions.  
+
+
