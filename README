@@ -49,12 +49,42 @@ follows:
 
         % bash bin/setup_manage_visits.sh -f conf/manage_visits.cfg
 
-   4. Check your setup by running the test script
+  4.  Create and deploy a password-less ssh key onto the data 
+      destination host (i.e. lsst2.ncsa.uiuc.edu).  
+
+      a. On your local host, make sure you have a $HOME/.ssh
+         directory for the user that will be pushing data to NCSA.
+         This is most reliably created by using ssh as that user to 
+         login into another machine.  
+
+      b. Create a custom, password-less ssh key-pair using ssh-keygen:
+
+           % ssh-keygen -t dsa -f $HOME/.ssh/lssttrx
+
+         When this command asks for a pass-phrase, simply hit return
+         without entering one (twice).  This will create files called 
+         lssttrx (the private key) and lssttrx.pub (the public key) 
+         in the $HOME/.ssh directory.  You may use whatever base name 
+         you wish for the key-pair; just be sure to provide that name
+         in the configuration file (step 5).  
+
+      c. Send the public key ($HOME/.ssh/lssttrx.pub) for deployment
+         on the destination host.  (For lsst2.ncsa.uiuc.edu, send the
+         public key to lsst-admin at ncsa.uiuc.edu, requesting
+         deployment.)   The contents of the  public key file should be
+         appended to the $HOME/.ssh/authorized_keys file on the
+         destination host.  
+
+  5.  Check your setup by running the test script
       bin/test_manage_visits.sh: 
 
         % bash bin/setup_manage_visits.sh -f conf/manage_visits.cfg
 
-You should be ready to run the tool.
+      This will make sure all the necessary directories exist, ssh
+      keys are properly in place, java is properly configured, and FDT
+      executes. 
+
+You should now be ready to run the tool.
 
 RUNNING
 
