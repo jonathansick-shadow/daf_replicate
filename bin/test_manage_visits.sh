@@ -124,11 +124,9 @@ fi
 # remote directories
 #
 $ECHO Checking remote directories...
-checkremdir $REMOTE_LOGDIR   || dirprob=1
-checkremdir $DESTDIR         || dirprob=1
-checkremdir $FINALDIR        || dirprob=1
-checkremdir $FINALDIR/raw    || dirprob=1
-checkremdir $FINALDIR/eimage || dirprob=1
+checkremdir $REMOTE_LOGDIR  || dirprob=1
+checkremdir $DESTDIR        || dirprob=1
+checkremdir $FINALDIR       || dirprob=1
 
 # remote java
 #

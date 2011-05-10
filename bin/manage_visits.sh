@@ -293,8 +293,8 @@ unset ffiles
 #---------------------------------------------------------------------------
 ${ECHO} Searching for completed visits...
 cd $TDIR
-vdirs=($(${FIND} imSim -maxdepth 2 -type d\
-      -name v[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-f?))
+vdirs=($(${FIND} imSim -maxdepth 3 -type d\
+      -name 'v[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-f?'))
 if [ ${#vdirs[@]} -gt 0 ] ; then
     for vdir in ${vdirs[@]} ; do
         ${ECHO} -n checking $vdir
@@ -304,6 +304,7 @@ if [ ${#vdirs[@]} -gt 0 ] ; then
         fi
         declare -x nf=`find $vdir -type f | wc -l`
         key=${vdir#*/}      #-- pull off the first level (imSim)
+        key=${key#*/}      #-- pull off the first level (imSim)
         key=${key%/v*}    #-- pull off the /v*-f?
         if [ $key == raw ]; then
             vcnt=$rcnt
@@ -329,8 +330,8 @@ fi
 #- in the visit top dir, find, transfer and rename the completed visits
 #---------------------------------------------------------------------------
 cd $TDIR
-vdirs=($(find imSim -maxdepth 2\
-      -name v[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-f?.fin))
+vdirs=($(find imSim -maxdepth 3\
+      -name 'v[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-f?.fin'))
 if [ ${#vdirs[@]} -gt 0 ] ; then
     declare -i nvisits=0
     ${ECHO} "processing ${#vdirs[@]} visit directories"
@@ -349,6 +350,7 @@ if [ ${#vdirs[@]} -gt 0 ] ; then
         ttdir=${tdir%.fin}    #-- pull off the .fin
         #- set key (has value raw or eimage)
         key=${vdir#*/}      #-- pull off the first level (imSim)
+        key=${key#*/}      #-- pull off the first level (imSim)
         key=${key%/v*}    #-- pull off the /v*-f?
         if [ $key == raw ]; then
             vcnt=$rcnt
@@ -383,7 +385,8 @@ if [ ${#vdirs[@]} -gt 0 ] ; then
         #- invoke local FDT as a server
         #-----------------------------------------------------------
         ${ECHO} Begin transfer of $key/$ttdir....
-        $JRE_LOC -jar $FDTLJAR -noupdates -md5 -f $RHOST -S > $FDTLLOG 2>&1 &
+        sleep 5
+        $JRE_LOC -jar $FDTLJAR -p 1234 -noupdates -md5 -f $RHOST -S > $FDTLLOG 2>&1 &
         JRE_PID=$!
         sleep 5  #- give time to set up socket
         #-----------------------------------------------------------
@@ -396,9 +399,16 @@ if [ ${#vdirs[@]} -gt 0 ] ; then
         #-----------------------------------------------------------
         #- invoke remote FDT as client in pull mode
         #-----------------------------------------------------------
-        ${SSHCMD} $RUSER@$RHOST $JRE_REMOTE -jar $FDTRJAR -noupdates -md5 \
-        -pull -c $LHOST -r -d $DESTDIR/$key $vdir \> $FDTRLOG 2\>\&1
-        retval=$?
+        retval=1
+        COUNTER=0
+        while [ $retval -ne 0 -a $COUNTER -lt 10 ]; do
+            ${SSHCMD} $RUSER@$RHOST $JRE_REMOTE -jar $FDTRJAR -p 1234 -noupdates -md5 \
+            -pull -c $LHOST -r -d $DESTDIR/$key $vdir \> $FDTRLOG 2\>\&1
+            retval=$?
+            echo RETVAL is $retval retrying for the $COUNTER time.
+            let COUNTER=COUNTER+1
+            sleep 5
+        done
         if [ $retval -ne 0 ] ; then
             ${ECHO} remote FDT client failed, killing local FDT server
             kill -TERM $JRE_PID
@@ -446,7 +456,7 @@ fi
 #---------------------------------------------------------------------------
 trap - INT TERM EXIT
 ${RM} -f $LOCKFILE
-${RM} -f $TMPBASE*
+${RM} -f $TMPBASE/*
 cd $dir0
 ${ECHO} exit at: $(${DATE} --utc '+%Y/%m/%d %H:%M:%S %Z') 
 exit 0

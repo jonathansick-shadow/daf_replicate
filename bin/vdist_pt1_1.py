@@ -26,14 +26,14 @@ def parseFileName(fileName):
     try:
         imageType, obshistid, filter, raft, sensor, channel, exposure = stubs[0].split("_")
         filter = filtmap[filter]
-   	path = "imSim/raw/v%08d-%s/%s/%s/%s/" % (int(obshistid),filter,\
+   	path = "imSim/PT1.2/raw/v%08d-%s/%s/%s/%s/" % (int(obshistid),filter,\
             exposure, raft, sensor)
         filename = "imsim_%s_%s_%s_%s_%s.fits.gz"%(obshistid,raft,sensor,channel,exposure)
     except:
 	try:
 	    imageType, obshistid, filter, raft, sensor, exposure = stubs[0].split("_")
    	    filter = filtmap[filter]
-            path = "imSim/eimage/v%08d-%s/%s/%s/" % (int(obshistid),filter,
+            path = "imSim/PT1.2/eimage/v%08d-%s/%s/%s/" % (int(obshistid),filter,
                 exposure, raft)
             filename = "eimage_%s_%s_%s_%s.fits.gz"%(obshistid,raft,sensor,exposure)
 	except:

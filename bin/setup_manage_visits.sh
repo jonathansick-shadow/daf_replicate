@@ -96,8 +96,6 @@ if [ -n "$doremdir" ]; then
     ensuredir $REMOTE_LOGDIR
     ensuredir $DESTDIR
     ensuredir $FINALDIR
-    ensuredir $FINALDIR/raw
-    ensuredir $FINALDIR/eimage
 fi
 
 echo All directories are ready
