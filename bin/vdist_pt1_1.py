@@ -11,45 +11,46 @@ import shutil
 import glob
 from optparse import OptionParser
 
+
 def parseFileName(fileName):
     """ Return the path to the file
 
     Expected filename format is imsim_85770141_f0_R01_S22_C17_E001.fits.gz
     """
 
-    #remove directory structure and .fits 
+    # remove directory structure and .fits
     stubs = os.path.basename(fileName).partition(".")
 
-    #map filter number to filter character
-    filtmap = {"f0":"fu", "f1":"fg", "f2":"fr", "f3":"fi", "f4":"fz", "f5":"fy"}
-    
+    # map filter number to filter character
+    filtmap = {"f0": "fu", "f1": "fg", "f2": "fr", "f3": "fi", "f4": "fz", "f5": "fy"}
+
     try:
         imageType, obshistid, filter, raft, sensor, channel, exposure = stubs[0].split("_")
         filter = filtmap[filter]
-   	path = "imSim/PT1.2/raw/v%08d-%s/%s/%s/%s/" % (int(obshistid),filter,\
-            exposure, raft, sensor)
-        filename = "imsim_%s_%s_%s_%s_%s.fits.gz"%(obshistid,raft,sensor,channel,exposure)
+        path = "imSim/PT1.2/raw/v%08d-%s/%s/%s/%s/" % (int(obshistid), filter,
+                                                       exposure, raft, sensor)
+        filename = "imsim_%s_%s_%s_%s_%s.fits.gz"%(obshistid, raft, sensor, channel, exposure)
     except:
-	try:
-	    imageType, obshistid, filter, raft, sensor, exposure = stubs[0].split("_")
-   	    filter = filtmap[filter]
-            path = "imSim/PT1.2/eimage/v%08d-%s/%s/%s/" % (int(obshistid),filter,
-                exposure, raft)
-            filename = "eimage_%s_%s_%s_%s.fits.gz"%(obshistid,raft,sensor,exposure)
-	except:
-	    raise ValueError("Unable to unpack filename %s" % fileName)
-        
-    
-    return path, filename 
+        try:
+            imageType, obshistid, filter, raft, sensor, exposure = stubs[0].split("_")
+            filter = filtmap[filter]
+            path = "imSim/PT1.2/eimage/v%08d-%s/%s/%s/" % (int(obshistid), filter,
+                                                           exposure, raft)
+            filename = "eimage_%s_%s_%s_%s.fits.gz"%(obshistid, raft, sensor, exposure)
+        except:
+            raise ValueError("Unable to unpack filename %s" % fileName)
+
+    return path, filename
+
 
 def distributeFilesForiRODs(topLevelDir, fileName):
     """Move an image file to the iRODS directory structure"""
 
-    path,filename = parseFileName(fileName)
-    
+    path, filename = parseFileName(fileName)
+
     # generate directories. Race condition can exist if the directory
     # is create between checking existance and makedirs
-    dir =  os.path.join(topLevelDir,path)
+    dir = os.path.join(topLevelDir, path)
     print dir
     if not os.path.isdir(dir):
         try:
@@ -59,9 +60,10 @@ def distributeFilesForiRODs(topLevelDir, fileName):
 
     # move file
     try:
-        shutil.move(fileName, os.path.join(dir,filename))
+        shutil.move(fileName, os.path.join(dir, filename))
     except:
         raise OSError("Unable to move filename %s" % fileName)
+
 
 def main():
 
@@ -81,6 +83,6 @@ def main():
         print "IO Error %s", ErrorMessage
     except IndexError, (ErrorMessage):
         print "IndexError: USAGE distributeFilesForiRODS toplevelDir filename (or wildcard)"
-        
+
 if __name__ == '__main__':
     main()
